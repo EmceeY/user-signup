@@ -4,6 +4,8 @@ import cgi
 
 import re
 
+values = {'user': '', 'email': ''}
+
 page_header = """
 <!DOCTYPE html>
 <html>
@@ -25,9 +27,9 @@ username = """
 
 		<label>
 			Username:
-			<input type="text" name="username" value="">
+			<input type="text" name="username" value= '{}'>
 		</label>
-"""
+""".format(values['user'])
 password = """
 		<br>
 		<label>
@@ -46,9 +48,9 @@ email = """
 		<br>
 		<label>
 			E-mail (optional):
-			<input type="text" name="email" value="">
+			<input type="text" name="email" value= '{}'>
 		</label>
-"""
+""".format(values['email'])
 button = """
 		<br>
 			<input type='submit'/>
@@ -65,7 +67,7 @@ USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 
 PASS_RE = re.compile(r"^.{3,20}$")
 
-EMAIL_RE = re.compile(r"^[/S]+@[/S]+.[/S]$")
+EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
 
 class Index(webapp2.RequestHandler):
 	def get(self):
@@ -82,16 +84,18 @@ class Login(webapp2.RequestHandler):
 		pass2 = self.request.get("verify")
 		email = self.request.get("email")
 		welcome = "Welcome, " + username
+		values['user'] = username
+		values['email'] = email
 
 		if username == "" or USER_RE.match(username) == None:
-			self.redirect("/usererror", email)
+			self.redirect("/usererror")
 
 		if PASS_RE.match(pass1) == None:
-			self.redirect("/passerror", username)
+			self.redirect("/passerror")
 
 		if email !="":
 			if EMAIL_RE.match(email) == None:
-				self.redirect("/emailerror", username)
+				self.redirect("/emailerror")
 			else:
 				self.response.write(welcome)
 		else:
