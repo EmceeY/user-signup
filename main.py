@@ -3,8 +3,8 @@ import webapp2
 import cgi
 
 import re
-
-values = {'user': '', 'email': ''}
+global values
+values = {'user1': '', 'email2': ''}
 
 page_header = """
 <!DOCTYPE html>
@@ -22,14 +22,15 @@ page_header = """
 		<a href="/">Signup</a>
 	</h1>
 """
-
+global username
 username = """
 
 		<label>
 			Username:
 			<input type="text" name="username" value= '{}'>
 		</label>
-""".format(values['user'])
+"""
+
 password = """
 		<br>
 		<label>
@@ -50,7 +51,7 @@ email = """
 			E-mail (optional):
 			<input type="text" name="email" value= '{}'>
 		</label>
-""".format(values['email'])
+"""
 button = """
 		<br>
 			<input type='submit'/>
@@ -71,26 +72,29 @@ EMAIL_RE = re.compile(r"^[\S]+@[\S]+.[\S]+$")
 
 class Index(webapp2.RequestHandler):
 	def get(self):
-
-		submit = username + password + password_verif + email + button
+		
+		submit = username.format("") + password + password_verif + email.format("") + button
 		body =  page_header + "<form action='/login' method='post'>" + submit + "</form>" + page_footer
 		self.response.write(body)
 
 class Login(webapp2.RequestHandler):
 	def post(self):
-		have_error = False
-		username = self.request.get("username")
+		global values
+		username1 = self.request.get("username")
 		pass1 = self.request.get("password")
 		pass2 = self.request.get("verify")
 		email = self.request.get("email")
-		welcome = "Welcome, " + username
-		values['user'] = username
-		values['email'] = email
+		welcome = "Welcome, " + username1
+		values['user1'] = username1
+		values['email2'] = email
 
-		if username == "" or USER_RE.match(username) == None:
+		if username1 == "" or USER_RE.match(username1) == None:
 			self.redirect("/usererror")
 
 		if PASS_RE.match(pass1) == None:
+			self.redirect("/passerror")
+
+		if pass1 != pass2: 
 			self.redirect("/passerror")
 
 		if email !="":
@@ -103,20 +107,21 @@ class Login(webapp2.RequestHandler):
 
 
 class User_Error(webapp2.RequestHandler):
-	def get(self):
-		submit = username + "That username is not valid" + password + password_verif + email + button
+	def get(self):	
+		submit = username.format(values['user1']) + "That username is not valid" + password + password_verif + email.format(values['email2'])+ button
 		body = page_header + "<form action='/login' method='post'>" + submit + "</form>" + page_footer
 		self.response.write(body)
 
 class Email_Error(webapp2.RequestHandler):
 	def get(self):
-		submit = username + password + password_verif + email + "That e-mail is not valid" + button
+		submit = username.format(values['user1']) + password + password_verif + email.format(values['email2'])+ "That e-mail is not valid" + button
 		body = page_header + "<form action='/login' method='post'>" + submit + "</form>" + page_footer
 		self.response.write(body)
 
 class Pass_Error(webapp2.RequestHandler):
 	def get(self):
-		submit = username + password + "That password is not valid" + password_verif + "That password is not valid" + email + button
+		global username
+		submit = username.format(values['user1']) + password + "That password is not valid" + password_verif + "That password is not valid" + email.format(values['email2'])+ button
 		body = page_header + "<form action='/login' method='post'>" + submit + "</form>" + page_footer
 		self.response.write(body)
 
